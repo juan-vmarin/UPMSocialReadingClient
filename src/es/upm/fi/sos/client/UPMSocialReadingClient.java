@@ -13,7 +13,7 @@ public class UPMSocialReadingClient {
 		UPMSocialReadingStub stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
-		System.out.println("Escoja la accion a realizar");
+		System.out.println("Escoja la prueba a realizar");
 		sc = new Scanner(System.in);
 
 		int option;
@@ -31,65 +31,40 @@ public class UPMSocialReadingClient {
 			sc.nextLine();
 			switch (option) {
 			case 1:
-				System.out.println("Introduzca su nombre de usuario\n");
-				String user = sc.nextLine();
-				System.out.println("Introduzca su contrasena\n");
-				String pwd = sc.nextLine();
-				login(user, pwd, stub);
+				login();
 				break;
 			case 2:
-				System.out.println("Introduzca el nombre de usuario\n");
-				user = sc.nextLine();
-				logout(user, stub);
+				logout();
 				break;
 			case 3:
-				System.out.println("Introduzca el nombre del nuevo usuario\n");
-				String userNew = sc.nextLine();
-				addUser(userNew, stub);
+				addUser();
 				break;
 			case 4:
-				removeUser(stub);
+				removeUser();
 				break;
 			case 5:
-				System.out.println("Introduzca la contrasena actual\n");
-				String actualPwd = sc.nextLine();
-				System.out.println("Introduzca la nueva contrasena\n");
-				String newPwd = sc.nextLine();
-				changePwd(actualPwd, newPwd, stub);
+				changePwd();
 				break;
 			case 6:
-				System.out.println("Introduzca el usuario que desea buscar\n");
-				String userSearch = sc.nextLine();
-				searchUser(userSearch, stub);
+				searchUser();
 				break;
 			case 7:
-				System.out.println("Introduzca el usuario que desea añadir\n");
-				String userAdd = sc.nextLine();
-				addFriend(userAdd, stub);
+				addFriend();
 				break;
 			case 8:
-				System.out
-						.println("Introduzca el usuario que desea eliminar\n");
-				String userDelete = sc.nextLine();
-				deleteFriend(userDelete, stub);
+				deleteFriend();
 				break;
 			case 9:
-				friendList(stub);
+				friendList();
 				break;
 			case 10:
-				System.out.println("Introduzca la lectura que desea añadir\n");
-				String reading = sc.nextLine();
-				addReading(reading, stub);
-				finish = true;
+				addReading();
 				break;
 			case 11:
-				readingList(stub);
+				readingList();
 				break;
 			case 12:
-				System.out
-						.println("Introduzca el usuario del cual desea ver las lecturas\n");
-				String userReadings = sc.nextLine();
-				friendReadings(userReadings, stub);
+				friendReadings();
 				break;
 			case 13:
 				finish = true;
@@ -102,64 +77,60 @@ public class UPMSocialReadingClient {
 		sc.close();
 	}
 
-	private static void login(String user, String pwd, UPMSocialReadingStub stub)
+	private static void login()
 			throws RemoteException { // 1
 
 	}
 
-	private static void logout(String user, UPMSocialReadingStub stub)
+	private static void logout()
 			throws RemoteException { // 2
-		Logout logout = new Logout();
-		stub.logout(logout);
-		return;
 	}
 
-	private static void addUser(String user, UPMSocialReadingStub stub)
+	private static void addUser()
 			throws RemoteException { // 3
 
 	}
 
-	private static void removeUser(UPMSocialReadingStub stub)
+	private static void removeUser()
 			throws RemoteException { // 4
 
 	}
 
-	private static void changePwd(String actualPwd, String newPwd,
-			UPMSocialReadingStub stub) throws RemoteException { // 5
+	private static void changePwd() throws RemoteException { // 5
 
 	}
 
-	private static void searchUser(String user, UPMSocialReadingStub stub)
+	private static void searchUser()
 			throws RemoteException { // 6
 
 	}
 
-	private static void addFriend(String user, UPMSocialReadingStub stub)
+	private static void addFriend()
 			throws RemoteException { // 7
 
 	}
 
-	private static void deleteFriend(String user, UPMSocialReadingStub stub)
+	private static void deleteFriend()
 			throws RemoteException { // 8
 
 	}
 
-	private static void friendList(UPMSocialReadingStub stub)
+	private static void friendList()
 			throws RemoteException { // 9
 
 	}
 
-	private static void addReading(String reading, UPMSocialReadingStub stub)
+	private static void addReading()
 			throws RemoteException { // 10
 
 	}
 
-	private static void readingList(UPMSocialReadingStub stub)
+	private static void readingList()
 			throws RemoteException { // 11
 
 	}
 
-	private static void friendReadings(String user, UPMSocialReadingStub stub)
+	private static void friendReadings()
 			throws RemoteException { // 12
 
 	}
