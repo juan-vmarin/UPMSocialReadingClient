@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.util.Scanner;
 import es.upm.fi.sos.client.UPMSocialReadingStub.*;
 
-
 public class UPMSocialReadingClient {
 
 	private static Scanner sc;
@@ -77,22 +76,67 @@ public class UPMSocialReadingClient {
 		sc.close();
 	}
 
-	private static void login()
-			throws RemoteException { // 1
-
+	private static void login() throws RemoteException { // 1
+		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		User user;
+		Login login;
+		LoginResponse loginResponse;
+		
+		boolean exito = true;
+		
+		// prueba para logear admin
+		user = new User();
+		user.setName("admin");
+		user.setPwd("admin");
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+		
+		if(!loginResponse.get_return().getResponse()){
+			exito = false;
+		}
+		
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		user = new User();
+		user.setName("grupo13333");
+		user.setPwd("sucontrasenia");
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+		
+		if(loginResponse.get_return().getResponse()){
+			exito = false;
+		}
+		
+		if(exito){
+			System.out.println("Exito en las pruebas de Login");
+		}else{
+			System.out.println("Fallo en las pruebas de Login");
+		}
+		
 	}
 
-	private static void logout()
-			throws RemoteException { // 2
+	private static void logout() throws RemoteException { // 2
 	}
 
-	private static void addUser()
-			throws RemoteException { // 3
-
+	private static void addUser() throws RemoteException { // 3
+//		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+//		stub._getServiceClient().engageModule("addressing");
+//		stub._getServiceClient().getOptions().setManageSession(true);
+//		
+//		
+//		Username username = new Username();
+//		
+//		AddUser addUser = new AddUser();
+//		addUser.setArgs0(user);
 	}
 
-	private static void removeUser()
-			throws RemoteException { // 4
+	private static void removeUser() throws RemoteException { // 4
 
 	}
 
@@ -100,38 +144,31 @@ public class UPMSocialReadingClient {
 
 	}
 
-	private static void searchUser()
-			throws RemoteException { // 6
+	private static void searchUser() throws RemoteException { // 6
 
 	}
 
-	private static void addFriend()
-			throws RemoteException { // 7
+	private static void addFriend() throws RemoteException { // 7
 
 	}
 
-	private static void deleteFriend()
-			throws RemoteException { // 8
+	private static void deleteFriend() throws RemoteException { // 8
 
 	}
 
-	private static void friendList()
-			throws RemoteException { // 9
+	private static void friendList() throws RemoteException { // 9
 
 	}
 
-	private static void addReading()
-			throws RemoteException { // 10
+	private static void addReading() throws RemoteException { // 10
 
 	}
 
-	private static void readingList()
-			throws RemoteException { // 11
+	private static void readingList() throws RemoteException { // 11
 
 	}
 
-	private static void friendReadings()
-			throws RemoteException { // 12
+	private static void friendReadings() throws RemoteException { // 12
 
 	}
 
