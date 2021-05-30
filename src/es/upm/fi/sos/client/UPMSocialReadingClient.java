@@ -299,19 +299,278 @@ public class UPMSocialReadingClient {
 	}
 
 	private static void addUser() throws RemoteException { // 3
-		// UPMSocialReadingStub stub = new UPMSocialReadingStub();
-		// stub._getServiceClient().engageModule("addressing");
-		// stub._getServiceClient().getOptions().setManageSession(true);
-		//
-		//
-		// Username username = new Username();
-		//
-		// AddUser addUser = new AddUser();
-		// addUser.setArgs0(user);
+		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		User user;
+		Login login;
+		LoginResponse loginResponse;
+
+		boolean exito = true;
+
+		// Login admin
+		user = new User();
+		user.setName("admin");
+		user.setPwd("admin");
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en login admin, addUser");
+		}
+		
+		// Preparar 2 usuarios
+		Username username = new Username();
+		username.setUsername("gxjusuario1");
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+		
+		username = new Username();
+		username.setUsername("gxjusuario2");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+		
+	
+		// Aniadir usuario
+		AddUser addUser = new AddUser();
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		
+		// Fallo en contrasenia
+		if (addUserResponse.get_return().getPwd() == null) {
+			exito = false;
+			System.out.println("Fallo en contrasenia, addUser");
+		}
+		
+		// Fallo en aniadir usuario
+		if(!addUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en aniadir usuario, addUser");
+		}
+		
+		// Fallo en aniadir usuario ya existente
+		addUserResponse = stub.addUser(addUser);
+		if (addUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en aniadir usuario ya existente, addUser");
+		}
+		
+		// Logout admin
+		Logout logout = new Logout();
+		stub.logout(logout);
+
+		// Login user2
+		User user2 = new User();
+		user2.setName("gxjusuario2");
+		Login login2 = new Login();
+		login2.setArgs0(user2);
+		loginResponse = stub.login(login2);
+		
+		// Aniadir usuario no siendo admin
+		addUser = new AddUser();
+		addUser.setArgs0(username);
+		addUserResponse = stub.addUser(addUser);
+		
+		if (addUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en aniadir usuario no siendo admin, addUser");
+		}
+
+		// Logout user1
+		logout = new Logout();
+		stub.logout(logout);
+				
+		if (exito) {
+			System.out.println("Exito en las pruebas de addUser");
+		} else {
+			System.out.println("Fallo en las pruebas de addUser");
+		}
+		
+
 	}
 
 	private static void removeUser() throws RemoteException { // 4
+		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		User user;
+		Login login;
+		LoginResponse loginResponse;
 
+		boolean exito = true;
+
+		// Login admin
+		user = new User();
+		user.setName("admin");
+		user.setPwd("admin");
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en login admin, removeUser");
+		}
+		
+		// Preparar 2 usuarios
+		Username username = new Username();
+		username.setUsername("gxjusuario1");
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+		
+		username = new Username();
+		username.setUsername("gxjusuario2");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+		
+		
+		// Aniadir usuario
+		AddUser addUser = new AddUser();
+		addUser.setArgs0(username);
+		stub.addUser(addUser);
+		
+		// Eliminar usuario
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		RemoveUserResponse removeUserResponse = stub.removeUser(removeUser);
+			
+		if (!removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminar usuario, removeUser");
+		}
+		
+		// Eliminar admin
+		Username usernameAdmin = new Username();
+		usernameAdmin.setUsername(user.getName());
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		removeUserResponse = stub.removeUser(removeUser);
+		
+		if(removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminar admin, removeUser");
+		}
+		
+		
+		// Eliminar usuario con sesion activa
+		User user3 = new User();
+		user3.setName("gxjusuario3");
+		user3.setPwd("pwd");
+		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
+		Username username3 = new Username();
+		username3.setUsername(user3.getName());
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username3);
+		stub2.removeUser(removeUser);
+		addUser = new AddUser();
+		addUser.setArgs0(username3);
+		stub2.addUser(addUser);
+		login = new Login();
+		login.setArgs0(user3);
+		loginResponse = stub2.login(login);
+
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en login otro usuario, removeUser");
+		}
+		
+		
+		// Eliminar usuario
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username3);
+		removeUserResponse = stub.removeUser(removeUser);
+		
+		if (!removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminar otro usuario, removeUser");
+		} else {
+			AddFriend addFriend = new AddFriend();
+			
+
+			Username username4 = new Username();
+			username4.setUsername("gxjusuario4");
+			removeUser = new RemoveUser();
+			addUser = new AddUser();
+			addUser.setArgs0(username4);
+			stub.addUser(addUser);
+			addFriend.setArgs0(username4);
+			AddFriendResponse addFriendResponse = stub2.addFriend(addFriend);
+			
+			if (addFriendResponse.get_return().getResponse()) {
+				exito = false;
+				System.out.println("Fallo en accion usuario eliminado, removeUser");
+			}
+		}
+		
+		
+		// Logout admin
+		Logout logout = new Logout();
+		stub.logout(logout);
+		
+		// Aniadir usuario
+		addUser = new AddUser();
+		addUser.setArgs0(username);
+		stub.addUser(addUser);
+		
+		// Eliminar usuario sin login
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		removeUserResponse = stub.removeUser(removeUser);
+		
+		if(removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminar usuarios sin login, removeUser");
+		}
+		
+		// Login user1
+		User user1 = new User();
+		user1.setName("gxjusuario1");
+		Login login1 = new Login();
+		login1.setArgs0(user1);
+		loginResponse = stub.login(login1);
+		
+		// Eliminar diferente usuario
+		username = new Username();
+		username.setUsername("gxjusuario2");
+		addUser = new AddUser();
+		addUser.setArgs0(username);
+		stub.addUser(addUser);
+		
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		removeUserResponse = stub.removeUser(removeUser);
+		
+		if(removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminar diferente usuario, removeUser");
+		}
+		
+		// Eliminarse a si mismo
+		username = new Username();
+		username.setUsername(user1.getName()); // gxjusuario1
+		
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		removeUserResponse = stub.removeUser(removeUser);
+		
+		if(!removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminarse a si mismo, removeUser");
+		}
+
+				
+		if (exito) {
+			System.out.println("Exito en las pruebas de removeUser");
+		} else {
+			System.out.println("Fallo en las pruebas de removeUser");
+		}
+		
 	}
 
 	private static void changePwd() throws RemoteException { // 5
@@ -480,7 +739,7 @@ public class UPMSocialReadingClient {
 																	// vez
 																	// funcione
 		}
-
+		
 		// Crear 2 usuarios
 		User user1 = new User();
 		user1.setName("userAF1");
@@ -493,6 +752,14 @@ public class UPMSocialReadingClient {
 		user2.setPwd("pwd");
 		Username usname2 = new Username();
 		usname2.setUsername(user2.getName());
+		
+		// Eliminar posibles usuarios existentes
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(usname1);
+		stub.removeUser(removeUser);
+		removeUser.setArgs0(usname2);
+		stub.removeUser(removeUser);
+		
 
 		// Aniadir los 2 usuarios
 		AddUser addUser = new AddUser();
@@ -550,6 +817,7 @@ public class UPMSocialReadingClient {
 																				// vez
 																				// funcione
 		}
+		
 
 		// Texto final
 		if (exito) {
@@ -608,6 +876,16 @@ public class UPMSocialReadingClient {
 		user3.setPwd("pwd");
 		Username usname3 = new Username();
 		usname2.setUsername(user3.getName());
+		
+		// Eliminar posibles usuarios existentes
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(usname1);
+		stub.removeUser(removeUser);
+		removeUser.setArgs0(usname2);
+		stub.removeUser(removeUser);
+		removeUser.setArgs0(usname3);
+		stub.removeUser(removeUser);
+		
 
 		// Aniadir los 3 usuarios
 		AddUser addUser = new AddUser();
@@ -679,16 +957,18 @@ public class UPMSocialReadingClient {
 				found = true;
 			}
 		}
-
-		removeFriend.setArgs0(usname3);
-		removeFriendResponse = stub.removeFriend(removeFriend);
-		if (removeFriendResponse.get_return().getResponse()) {
-			exito = false;
-			System.out
-					.println("Fallo en eliminar usuario no amigo, deleteFriend"); // borrar
-																					// una
-																					// vez
-			// funcione
+		
+		if (!found) {
+			removeFriend.setArgs0(usname3);
+			removeFriendResponse = stub.removeFriend(removeFriend);
+			if (removeFriendResponse.get_return().getResponse()) {
+				exito = false;
+				System.out
+						.println("Fallo en eliminar usuario no amigo, deleteFriend"); // borrar
+																						// una
+																						// vez
+																						// funcione
+			}
 		}
 
 		// No existe
@@ -763,6 +1043,17 @@ public class UPMSocialReadingClient {
 		user3.setPwd("pwd");
 		Username usname3 = new Username();
 		usname3.setUsername(user3.getName());
+		
+		
+		// Eliminar posibles usuarios existentes
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(usname1);
+		stub.removeUser(removeUser);
+		removeUser.setArgs0(usname2);
+		stub.removeUser(removeUser);
+		removeUser.setArgs0(usname3);
+		stub.removeUser(removeUser);
+		
 
 		// Aniadir los 3 usuarios
 		AddUser addUser = new AddUser();
