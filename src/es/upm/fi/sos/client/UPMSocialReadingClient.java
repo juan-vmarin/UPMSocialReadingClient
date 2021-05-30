@@ -220,14 +220,11 @@ public class UPMSocialReadingClient {
 
 		logout = new Logout();
 		stub.logout(logout);
+		
+		GetMyReadings getMyReadings = new GetMyReadings();
+		GetMyReadingsResponse getMyReadingsResponse = stub.getMyReadings(getMyReadings);
 
-		username = new Username();
-		username.setUsername("gxjusuario2");
-		AddFriend addFriend = new AddFriend();
-		addFriend.setArgs0(username);
-		AddFriendResponse addFriendResponse = stub.addFriend(addFriend);
-
-		if (addFriendResponse.get_return().getResponse()) {
+		if (getMyReadingsResponse.get_return().getResult()) {
 			exito = false;
 			System.out.println("Fallo test: logout de un usuario");
 		}
@@ -243,35 +240,45 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
 
-		user = new User();
-		user.setName("gxjusuario1");
-		user.setPwd(password1);
-		login = new Login();
-		login.setArgs0(user);
-		loginResponse = stub.login(login);
-
-		user = new User();
-		user.setName("gxjusuario1");
-		user.setPwd(password1);
-		login = new Login();
-		login.setArgs0(user);
-		loginResponse = stub.login(login);
-
-		logout = new Logout();
-		stub.logout(logout);
-
-		logout = new Logout();
-		stub.logout(logout);
-
-		username = new Username();
-		username.setUsername("gxjusuario2");
-		addFriend = new AddFriend();
-		addFriend.setArgs0(username);
-		addFriendResponse = stub.addFriend(addFriend);
-
-		if (!addFriendResponse.get_return().getResponse()) {
+		if (!loginResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo test: loging 3veces logout 2 veces");
+			System.out.println("Fallo login");
+		}
+		
+		getMyReadings = new GetMyReadings();
+		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+
+		if (!getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: logout de un usuario");
+		}
+
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+
+		logout = new Logout();
+		stub.logout(logout);
+
+		logout = new Logout();
+		stub.logout(logout);
+
+		getMyReadings = new GetMyReadings();
+		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+
+		if (!getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: loging 3 veces logout 2 veces");
 		}
 
 		logout = new Logout();
@@ -654,6 +661,12 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
+		
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out
+					.println("Fallo login 1");
+		}
 
 		user = new User();
 		user.setName("gxjusuario1");
@@ -661,6 +674,12 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 		loginResponse = stub2.login(login);
+		
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out
+					.println("Fallo login 2");
+		}
 
 		passwordPair = new PasswordPair();
 		passwordPair.setOldpwd(password1);
@@ -672,7 +691,7 @@ public class UPMSocialReadingClient {
 		if (!changePasswordResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: cambiar contrasena entre varias sesiones");
+					.println("Fallo test: cambiar contrasena entre varias sesiones 1");
 		}
 
 		passwordPair = new PasswordPair();
@@ -685,7 +704,7 @@ public class UPMSocialReadingClient {
 		if (!changePasswordResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: cambiar contrasena entre varias sesiones");
+					.println("Fallo test: cambiar contrasena entre varias sesiones 2");
 		}
 
 		stub = new UPMSocialReadingStub();
@@ -702,7 +721,7 @@ public class UPMSocialReadingClient {
 		if (!loginResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: cambiar contrasena entre varias sesiones");
+					.println("Fallo test: cambiar contrasena entre varias sesiones 3");
 		}
 
 		if (exito) {
@@ -1145,6 +1164,8 @@ public class UPMSocialReadingClient {
 		user.setPwd("admin");
 		login = new Login();
 		login.setArgs0(user);
+		stub.login(login);
+		
 		// preparar 2 usuarios
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
@@ -1179,6 +1200,8 @@ public class UPMSocialReadingClient {
 		user.setPwd(password1);
 		login = new Login();
 		login.setArgs0(user);
+		stub.login(login);
+		
 		book = new Book();
 		book.setAuthor("Guido Van Roussum");
 		book.setCalification(9);
@@ -1186,15 +1209,24 @@ public class UPMSocialReadingClient {
 		addReading = new AddReading();
 		addReading.setArgs0(book);
 		addReadingResponse = stub.addReading(addReading);
-
-		GetMyReadings getMyReadings = new GetMyReadings();
-		GetMyReadingsResponse getMyReadingsResponse = stub
-				.getMyReadings(getMyReadings);
-
-		if (getMyReadingsResponse.get_return().getTitles()[0].equals(book
-				.getTitle())) {
+		
+		if (!addReadingResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo test: anadir un libro");
+			System.out.println("Fallo test: anadir un libro 1");
+		}
+		
+		GetMyReadings getMyReadings = new GetMyReadings();
+		GetMyReadingsResponse getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+		
+		if (!getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: anadir un libro 2");
+		}
+		
+		if (!getMyReadingsResponse.get_return().getTitles()[0].equals(book.getTitle())) {
+
+			exito = false;
+			System.out.println("Fallo test: anadir un libro 3");
 		}
 
 		book = new Book();
@@ -1207,9 +1239,8 @@ public class UPMSocialReadingClient {
 
 		getMyReadings = new GetMyReadings();
 		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
-
-		if (getMyReadingsResponse.get_return().getTitles()[0].equals(book
-				.getTitle())) {
+		
+		if (!getMyReadingsResponse.get_return().getTitles()[0].equals(book.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: modificar un libro");
 		}
@@ -1234,6 +1265,8 @@ public class UPMSocialReadingClient {
 		user.setPwd("admin");
 		login = new Login();
 		login.setArgs0(user);
+		stub.login(login);
+		
 		// preparar 2 usuarios
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
@@ -1264,6 +1297,8 @@ public class UPMSocialReadingClient {
 		user.setPwd(password1);
 		login = new Login();
 		login.setArgs0(user);
+		stub.login(login);
+		
 		Book book1 = new Book();
 		book1.setAuthor("Guido Van Roussum");
 		book1.setCalification(10);
@@ -1288,6 +1323,19 @@ public class UPMSocialReadingClient {
 		addReading.setArgs0(book3);
 		stub.addReading(addReading);
 
+		
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		stub.login(login);
+	
+
 		getMyReadings = new GetMyReadings();
 		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
 
@@ -1297,21 +1345,27 @@ public class UPMSocialReadingClient {
 		}
 
 		String[] readings = getMyReadingsResponse.get_return().getTitles();
-
-		if (readings[0].equals(book3.getTitle())) {
+		
+		if (!(readings.length >= 3)) {
+			exito = false;
+			System.out.println("Fallo test: longitud de la lista");
+		} 
+		
+		if (!readings[0].equals(book3.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el primer libro");
-		}
-
-		if (readings[1].equals(book2.getTitle())) {
+		} 
+		
+		if (!readings[1].equals(book2.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el segundo libro");
+		} 
+		
+		if (!readings[2].equals(book1.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el tercer libro");
-		}
+		} 
 
-		if (readings[2].equals(book1.getTitle())) {
-			exito = false;
-			System.out.println("Fallo test: comparar el primer libro");
-		}
 
 		if (exito) {
 			System.out.println("Exito en las pruebas de GetMyReadings");
@@ -1334,6 +1388,8 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 
+		stub.login(login);
+		
 		// preparar 2 usuarios
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
@@ -1380,6 +1436,8 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 
+		stub.login(login);
+		
 		username = new Username();
 		username.setUsername("gxjusuario2");
 		AddFriend addFriend = new AddFriend();
@@ -1420,32 +1478,38 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 
+		stub.login(login);
+	
 		username = new Username();
 		username.setUsername("gxjusuario1");
 		getMyFriendReadings = new GetMyFriendReadings();
 		getMyFriendReadings.setArgs0(username);
-		getMyFriendReadingsResponse = stub
-				.getMyFriendReadings(getMyFriendReadings);
 
-		if (getMyFriendReadingsResponse.get_return().getResult()) {
+		getMyFriendReadingsResponse = stub.getMyFriendReadings(getMyFriendReadings);
+		
+		if (!getMyFriendReadingsResponse.get_return().getResult()) {
 			exito = false;
 			System.out.println("Fallo test: obtener lecturas del amigo");
 		}
-
-		String[] readings = getMyFriendReadingsResponse.get_return()
-				.getTitles();
-
-		if (readings[0].equals(book3.getTitle())) {
+		
+		String[] readings = getMyFriendReadingsResponse.get_return().getTitles();
+		
+		if (!(readings.length >= 3)) {
+			exito = false;
+			System.out.println("Fallo test: longitud de la lista");
+		} 
+		
+		if (!readings[0].equals(book3.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el primer libro");
-		}
-
-		if (readings[1].equals(book2.getTitle())) {
+		} 
+		
+		if (!readings[1].equals(book2.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el tercer libro");
-		}
-
-		if (readings[2].equals(book1.getTitle())) {
+		} 
+		
+		if (!readings[2].equals(book1.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el primer libro");
 		}
