@@ -18,12 +18,13 @@ public class UPMSocialReadingClient {
 		int option;
 		boolean finish = false;
 		while (!finish) {
-			System.out.println("1. Iniciar sesion\n" + "2. Cerrar sesion\n"
+			System.out.println("\n1. Iniciar sesion\n" + "2. Cerrar sesion\n"
 					+ "3. Añadir usuario\n" + "4. Eliminar usuario\n"
 					+ "5. Cambiar contraseña\n" + "6. Añadir amigo\n"
 					+ "7. Eliminar amigo\n" + "8. Lista de amigos\n"
 					+ "9. Añadir lectura\n" + "10. Lista de lecturas\n"
-					+ "11. Lecturas de amigo\n" + "12. Salir\n");
+					+ "11. Lecturas de amigo\n"
+					+ "12. Realizar todas las pruebas en una\n" + "13. Salir\n");
 
 			option = sc.nextInt();
 			sc.nextLine();
@@ -62,6 +63,30 @@ public class UPMSocialReadingClient {
 				getFriendReadings();
 				break;
 			case 12:
+				System.out.println("Prueba login:");
+				login();
+				System.out.println("Prueba logout:");
+				logout();
+				System.out.println("Prueba addUser:");
+				addUser();
+				System.out.println("Prueba removeUser:");
+				removeUser();
+				System.out.println("Prueba changePassword:");
+				changePwd();
+				System.out.println("Prueba addFriend:");
+				addFriend();
+				System.out.println("Prueba removeFriend:");
+				deleteFriend();
+				System.out.println("Prueba getMyFriendList:");
+				getFriendList();
+				System.out.println("Prueba addReading:");
+				addReading();
+				System.out.println("Prueba getMyReadings:");
+				getReadingList();
+				System.out.println("Prueba getMyFriendReadings:");
+				getFriendReadings();
+				break;
+			case 13:
 				finish = true;
 				break;
 			default:
@@ -230,6 +255,7 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo test: logout de un usuario");
 		}
 
+		// logout de un usuario
 		stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
@@ -241,17 +267,17 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
 
-		if (!loginResponse.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo login");
-		}
+		user = new User();
+		user.setName("gxjusuario2");
+		user.setPwd(password2);
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
 
-		getMyReadings = new GetMyReadings();
-		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
-
-		if (!getMyReadingsResponse.get_return().getResult()) {
+		if (loginResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo test: logout de un usuario");
+			System.out
+					.println("Fallo test: login user 1 y login user 2 consecutivamente");
 		}
 
 		user = new User();
@@ -279,11 +305,32 @@ public class UPMSocialReadingClient {
 
 		if (!getMyReadingsResponse.get_return().getResult()) {
 			exito = false;
-			System.out.println("Fallo test: loging 3 veces logout 2 veces");
+			System.out.println("Fallo test: login 3 veces logout 2 veces");
+		}
+
+		user = new User();
+		user.setName("gxjusuario2");
+		user.setPwd(password2);
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+
+		if (loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out
+					.println("Fallo test: login 3 veces usuario 1, 2 logout usuario 1, y login usuario 1");
 		}
 
 		logout = new Logout();
 		stub.logout(logout);
+
+		getMyReadings = new GetMyReadings();
+		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+
+		if (getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: logout total de un usuario");
+		}
 
 		user = new User();
 		user.setName("gxjusuario2");
@@ -295,7 +342,7 @@ public class UPMSocialReadingClient {
 		if (!loginResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: loging 3 veces logout 3 veces, login con usuario2");
+					.println("Fallo test: login 3 veces logout 3 veces, login con usuario 2");
 		}
 
 		if (exito) {
@@ -687,10 +734,13 @@ public class UPMSocialReadingClient {
 		}
 	}
 
-	private static void addFriend() throws RemoteException { // 7
+	private static void addFriend() throws RemoteException { // 6
 		UPMSocialReadingStub stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
+		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
+		stub2._getServiceClient().engageModule("addressing");
+		stub2._getServiceClient().getOptions().setManageSession(true);
 		User user;
 		Login login;
 		LoginResponse loginResponse;
@@ -710,36 +760,28 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo en login admin, addFriend");
 		}
 
-		// Crear 2 usuarios
-		User user1 = new User();
-		user1.setName("userAF1");
-		user1.setPwd("pwd");
-		Username usname1 = new Username();
-		usname1.setUsername(user1.getName());
-
-		User user2 = new User();
-		user2.setName("userAF2");
-		user2.setPwd("pwd");
-		Username usname2 = new Username();
-		usname2.setUsername(user2.getName());
-
-		// Eliminar posibles usuarios existentes
+		// Preparar 2 usuarios
+		Username username = new Username();
+		username.setUsername("userAF1");
 		RemoveUser removeUser = new RemoveUser();
-		removeUser.setArgs0(usname1);
+		removeUser.setArgs0(username);
 		stub.removeUser(removeUser);
-		removeUser.setArgs0(usname2);
-		stub.removeUser(removeUser);
-
-		// Aniadir los 2 usuarios
 		AddUser addUser = new AddUser();
-		AddUserResponseE addUserResponseE;
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
 
-		addUser.setArgs0(usname1);
-		addUserResponseE = stub.addUser(addUser);
-		addUser.setArgs0(usname2);
-		addUserResponseE = stub.addUser(addUser);
+		Username username2 = new Username();
+		username2.setUsername("userAF2");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username2);
+		stub.removeUser(removeUser);
+		addUser = new AddUser();
+		addUser.setArgs0(username2);
+		addUserResponse = stub.addUser(addUser);
+		String password2 = addUserResponse.get_return().getPwd();
 
-		if (!addUserResponseE.get_return().getResponse()) {
+		if (!addUserResponse.get_return().getResponse()) {
 			exito = false;
 			System.out.println("Fallo en add user, addFriend");
 		}
@@ -749,8 +791,11 @@ public class UPMSocialReadingClient {
 		stub.logout(logout);
 
 		// Login user1
-		Login login1 = new Login();
-		login1.setArgs0(user1);
+		User user1 = new User();
+		user1.setName("userAF1");
+		user1.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user1);
 		loginResponse = stub.login(login);
 
 		if (!loginResponse.get_return().getResponse()) {
@@ -758,8 +803,25 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo en login user1, addFriend");
 		}
 
+		// Login user1 stub2
+		user1 = new User();
+		user1.setName("userAF1");
+		user1.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user1);
+		loginResponse = stub2.login(login);
+
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en login user1 stub2, addFriend");
+		}
+
 		// Add friend
 		AddFriend addFriend = new AddFriend();
+
+		User user2 = new User();
+		user2.setName("userAF2");
+		user.setPwd(password2);
 
 		Username usnameF = new Username();
 		usnameF.setUsername(user2.getName());
@@ -768,6 +830,18 @@ public class UPMSocialReadingClient {
 		if (!addFriendResponse.get_return().getResponse()) {
 			exito = false;
 			System.out.println("Fallo en addFriend");
+		}
+
+		FriendList friendList = new FriendList();
+		friendList.addFriends(usnameF.getUsername());
+
+		// Amigo repetido
+		addFriend = new AddFriend();
+		addFriend.setArgs0(usnameF);
+		addFriendResponse = stub.addFriend(addFriend);
+		if (addFriendResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en amigo repetido, addFriend");
 		}
 
 		// Usuario no existente
@@ -779,6 +853,27 @@ public class UPMSocialReadingClient {
 			exito = false;
 			System.out
 					.println("Fallo en aniadir amigo no existente, addFriend");
+		}
+
+		// Comprobar amigo
+		GetMyFriendList getMyFriendList = new GetMyFriendList();
+		String[] friends = stub2.getMyFriendList(getMyFriendList).get_return()
+				.getFriends();
+		if (!friends[friends.length - 1].equals(user2.getName())) {
+			exito = false;
+			System.out
+					.println("Fallo en comprobar amigo en otra sesion, addFriend");
+		}
+
+		// Eliminar amigo aniadido
+		RemoveFriend removeFriend = new RemoveFriend();
+		removeFriend.setArgs0(usnameF);
+		RemoveFriendResponse removeFriendResponse = stub
+				.removeFriend(removeFriend);
+
+		if (!removeFriendResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo en eliminar amigo1, friendList");
 		}
 
 		// Texto final
@@ -794,10 +889,13 @@ public class UPMSocialReadingClient {
 
 	}
 
-	private static void deleteFriend() throws RemoteException { // 8
+	private static void deleteFriend() throws RemoteException { // 7
 		UPMSocialReadingStub stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
+		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
+		stub2._getServiceClient().engageModule("addressing");
+		stub2._getServiceClient().getOptions().setManageSession(true);
 		User user;
 		Login login;
 		LoginResponse loginResponse;
@@ -817,46 +915,38 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo en login admin, deleteFriend");
 		}
 
-		// Crear 2 + 1 usuarios
-		User user1 = new User();
-		user1.setName("userDF1");
-		user1.setPwd("pwd");
-		Username usname1 = new Username();
-		usname1.setUsername(user1.getName());
-
-		User user2 = new User();
-		user2.setName("userDF2");
-		user2.setPwd("pwd");
-		Username usname2 = new Username();
-		usname2.setUsername(user2.getName());
-
-		User user3 = new User();
-		user3.setName("userDF3");
-		user3.setPwd("pwd");
-		Username usname3 = new Username();
-		usname3.setUsername(user3.getName());
-
-		// Eliminar posibles usuarios existentes
+		// Preparar 3 usuarios
+		Username username = new Username();
+		username.setUsername("userDF1");
 		RemoveUser removeUser = new RemoveUser();
-		removeUser.setArgs0(usname1);
+		removeUser.setArgs0(username);
 		stub.removeUser(removeUser);
-		removeUser.setArgs0(usname2);
-		stub.removeUser(removeUser);
-		removeUser.setArgs0(usname3);
-		stub.removeUser(removeUser);
-
-		// Aniadir los 3 usuarios
 		AddUser addUser = new AddUser();
-		AddUserResponseE addUserResponseE;
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
 
-		addUser.setArgs0(usname1);
-		addUserResponseE = stub.addUser(addUser);
-		addUser.setArgs0(usname2);
-		addUserResponseE = stub.addUser(addUser);
-		addUser.setArgs0(usname3);
-		addUserResponseE = stub.addUser(addUser);
+		Username username2 = new Username();
+		username2.setUsername("userDF2");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username2);
+		stub.removeUser(removeUser);
+		addUser = new AddUser();
+		addUser.setArgs0(username2);
+		addUserResponse = stub.addUser(addUser);
+		String password2 = addUserResponse.get_return().getPwd();
 
-		if (!addUserResponseE.get_return().getResponse()) {
+		Username username3 = new Username();
+		username3.setUsername("userDF3");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username3);
+		stub.removeUser(removeUser);
+		addUser = new AddUser();
+		addUser.setArgs0(username3);
+		addUserResponse = stub.addUser(addUser);
+		String password3 = addUserResponse.get_return().getPwd();
+
+		if (!addUserResponse.get_return().getResponse()) {
 			exito = false;
 			System.out.println("Fallo en add user, deleteFriend");
 		}
@@ -866,8 +956,11 @@ public class UPMSocialReadingClient {
 		stub.logout(logout);
 
 		// Login user1
-		Login login1 = new Login();
-		login1.setArgs0(user1);
+		User user1 = new User();
+		user1.setName("userDF1");
+		user1.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user1);
 		loginResponse = stub.login(login);
 
 		if (!loginResponse.get_return().getResponse()) {
@@ -878,16 +971,23 @@ public class UPMSocialReadingClient {
 		// Add friend
 		AddFriend addFriend = new AddFriend();
 
-		addFriend.setArgs0(usname2);
+		User user2 = new User();
+		user2.setName("userDF2");
+		user.setPwd(password2);
+
+		addFriend.setArgs0(username2);
 		AddFriendResponse addFriendResponse = stub.addFriend(addFriend);
 		if (!addFriendResponse.get_return().getResponse()) {
 			exito = false;
 			System.out.println("Fallo en add friend ,deleteFriend");
 		}
 
+		FriendList friendList = new FriendList();
+		friendList.addFriends(username2.getUsername());
+
 		// Remove friend
 		RemoveFriend removeFriend = new RemoveFriend();
-		removeFriend.setArgs0(usname2);
+		removeFriend.setArgs0(username2);
 		RemoveFriendResponse removeFriendResponse = stub
 				.removeFriend(removeFriend);
 
@@ -896,27 +996,25 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo en deleteFriend");
 		}
 
-		// No es amigo
-		// No creo q esto sea necesario
-		FriendList friendList = new FriendList();
-		String[] friends = friendList.getFriends();
-		boolean found = false;
-		if (friends != null) {
-			for (String name : friends) {
-				if (name.equals(user3.getName())) {
-					found = true;
-				}
+		// Comprobar amigo
+		GetMyFriendList getMyFriendList = new GetMyFriendList();
+		String[] friends = stub2.getMyFriendList(getMyFriendList).get_return()
+				.getFriends();
+		if (friends != null && friends.length != 0) {
+
+			if (!friends[friends.length - 1].equals(user2.getName())) {
+				exito = false;
+				System.out.println("Fallo en comprobar amigo, deleteFriend");
 			}
 		}
 
-		if (!found) {
-			removeFriend.setArgs0(usname3);
-			removeFriendResponse = stub.removeFriend(removeFriend);
-			if (removeFriendResponse.get_return().getResponse()) {
-				exito = false;
-				System.out
-						.println("Fallo en eliminar usuario no amigo, deleteFriend");
-			}
+		// No es amigo
+		removeFriend.setArgs0(username3);
+		removeFriendResponse = stub.removeFriend(removeFriend);
+		if (removeFriendResponse.get_return().getResponse()) {
+			exito = false;
+			System.out
+					.println("Fallo en eliminar usuario no amigo, deleteFriend");
 		}
 
 		// No existe
@@ -944,7 +1042,7 @@ public class UPMSocialReadingClient {
 		stub.logout(logout);
 	}
 
-	private static void getFriendList() throws RemoteException { // 9
+	private static void getFriendList() throws RemoteException { // 8
 		UPMSocialReadingStub stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
@@ -969,69 +1067,47 @@ public class UPMSocialReadingClient {
 																	// funcione
 		}
 
-		// Crear 3 usuarios
-		User user1 = new User();
-		user1.setName("usergFL1");
-		user1.setPwd("pwd");
-		Username usname1 = new Username();
-		usname1.setUsername(user1.getName());
-
-		User user2 = new User();
-		user2.setName("usergFL2");
-		user2.setPwd("pwd");
-		Username usname2 = new Username();
-		usname2.setUsername(user2.getName());
-
-		User user3 = new User();
-		user3.setName("usergFL3");
-		user3.setPwd("pwd");
-		Username usname3 = new Username();
-		usname3.setUsername(user3.getName());
-
-		// Eliminar posibles usuarios existentes
+		// Preparar 3 usuarios
+		Username username = new Username();
+		username.setUsername("userGF1");
 		RemoveUser removeUser = new RemoveUser();
-		removeUser.setArgs0(usname1);
+		removeUser.setArgs0(username);
 		stub.removeUser(removeUser);
-		removeUser.setArgs0(usname2);
-		stub.removeUser(removeUser);
-		removeUser.setArgs0(usname3);
-		stub.removeUser(removeUser);
-
-		// Aniadir los 3 usuarios
 		AddUser addUser = new AddUser();
-		AddUserResponseE addUserResponseE;
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
 
-		addUser.setArgs0(usname1);
-		addUserResponseE = stub.addUser(addUser);
+		Username username2 = new Username();
+		username2.setUsername("userGF2");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username2);
+		stub.removeUser(removeUser);
+		addUser = new AddUser();
+		addUser.setArgs0(username2);
+		addUserResponse = stub.addUser(addUser);
+		String password2 = addUserResponse.get_return().getPwd();
 
-		if (!addUserResponseE.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en add user1, friendList");
-		}
-
-		addUser.setArgs0(usname2);
-		addUserResponseE = stub.addUser(addUser);
-
-		if (!addUserResponseE.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en add user2, friendList");
-		}
-
-		addUser.setArgs0(usname3);
-		addUserResponseE = stub.addUser(addUser);
-
-		if (!addUserResponseE.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en add user3, friendList");
-		}
+		Username username3 = new Username();
+		username3.setUsername("userGF3");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username3);
+		stub.removeUser(removeUser);
+		addUser = new AddUser();
+		addUser.setArgs0(username3);
+		addUserResponse = stub.addUser(addUser);
+		String password3 = addUserResponse.get_return().getPwd();
 
 		// Logout admin
 		Logout logout = new Logout();
 		stub.logout(logout);
 
 		// Login user1
-		Login login1 = new Login();
-		login1.setArgs0(user1);
+		User user1 = new User();
+		user1.setName("userGF1");
+		user1.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user1);
 		loginResponse = stub.login(login);
 
 		if (!loginResponse.get_return().getResponse()) {
@@ -1040,45 +1116,56 @@ public class UPMSocialReadingClient {
 		}
 
 		// Add friends
+		// 1
 		AddFriend addFriend = new AddFriend();
 
-		addFriend.setArgs0(usname2);
+		User user2 = new User();
+		user2.setName("userGF2");
+		user.setPwd(password2);
+
+		addFriend.setArgs0(username2);
 		AddFriendResponse addFriendResponse = stub.addFriend(addFriend);
 		if (!addFriendResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo en add friend, friendList1"); // borrar
-																	// una vez
-																	// funcione
+			System.out.println("Fallo en aniadir amigo 1, getFriendList");
 		}
 
-		addFriend.setArgs0(usname3);
-		AddFriendResponse addFriendResponse2 = stub.addFriend(addFriend);
+		FriendList friendList = new FriendList();
+		friendList.addFriends(username2.getUsername());
+
+		// 2
+		addFriend = new AddFriend();
+
+		User user3 = new User();
+		user3.setName("userGF3");
+		user3.setPwd(password3);
+
+		addFriend.setArgs0(username3);
+		addFriendResponse = stub.addFriend(addFriend);
 		if (!addFriendResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo en add friend, friendList2"); // borrar
-																	// una
-																	// vez
-																	// funcione
+			System.out.println("Fallo en aniadir amigo 2, getFriendList");
 		}
 
+		friendList.addFriends(username3.getUsername());
+
 		// FriendList
-		FriendList friendList = new FriendList();
-		friendList.addFriends(usname2.getUsername());
-		friendList.addFriends(usname3.getUsername());
-		String[] friends = friendList.getFriends();
-		if (friends == null) {
+		GetMyFriendList getMyFriendList = new GetMyFriendList();
+		String[] friends = stub.getMyFriendList(getMyFriendList).get_return()
+				.getFriends();
+
+		if (friends == null || friends.length == 0) {
 			exito = false;
 			System.out.println("Fallo en friends null, friendList");
-		} else if ((friends[0] != usname2.getUsername())
-				|| (friends[1] != usname3.getUsername())) {
+		} else if (!friends[0].equals(username2.getUsername())
+				|| !friends[1].equals(username3.getUsername())) {
 			exito = false;
-			System.out.println("Fallo en friends, friendList"); // borrar una
-																// vez funcione
+			System.out.println("Fallo en friends, friendList");
 		}
 
 		// Eliminar amigos
 		RemoveFriend removeFriend = new RemoveFriend();
-		removeFriend.setArgs0(usname2);
+		removeFriend.setArgs0(username2);
 		RemoveFriendResponse removeFriendResponse = stub
 				.removeFriend(removeFriend);
 
@@ -1088,7 +1175,7 @@ public class UPMSocialReadingClient {
 		}
 
 		removeFriend = new RemoveFriend();
-		removeFriend.setArgs0(usname3);
+		removeFriend.setArgs0(username3);
 		removeFriendResponse = stub.removeFriend(removeFriend);
 
 		if (!removeFriendResponse.get_return().getResponse()) {
