@@ -584,9 +584,6 @@ public class UPMSocialReadingClient {
 		UPMSocialReadingStub stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
-		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
-		stub._getServiceClient().engageModule("addressing");
-		stub._getServiceClient().getOptions().setManageSession(true);
 		Logout logout;
 		User user;
 		Login login;
@@ -616,17 +613,6 @@ public class UPMSocialReadingClient {
 		AddUserResponseE addUserResponse = stub.addUser(addUser);
 		String password1 = addUserResponse.get_return().getPwd();
 
-		username = new Username();
-		username.setUsername("gxjusuario2");
-		removeUser = new RemoveUser();
-		removeUser.setArgs0(username);
-		stub.removeUser(removeUser);
-
-		addUser = new AddUser();
-		addUser.setArgs0(username);
-		addUserResponse = stub.addUser(addUser);
-		String password2 = addUserResponse.get_return().getPwd();
-
 		passwordPair = new PasswordPair();
 		passwordPair.setOldpwd("admin");
 		passwordPair.setNewpwd("newadmin");
@@ -653,10 +639,22 @@ public class UPMSocialReadingClient {
 			exito = false;
 			System.out.println("Fallo test: cambiar contrasena del admin");
 		}
+		
+		// restaurar la contrasena del admin
+		passwordPair = new PasswordPair();
+		passwordPair.setOldpwd("newadmin");
+		passwordPair.setNewpwd("admin");
+		changePassword = new ChangePassword();
+		changePassword.setArgs0(passwordPair);
+		changePasswordResponse = stub.changePassword(changePassword);
 
 		stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
+		stub2._getServiceClient().engageModule("addressing");
+		stub2._getServiceClient().getOptions().setManageSession(true);
 
 		user = new User();
 		user.setName("gxjusuario1");
