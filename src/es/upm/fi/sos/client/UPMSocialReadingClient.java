@@ -841,15 +841,320 @@ public class UPMSocialReadingClient {
 	}
 
 	private static void addReading() throws RemoteException { // 10
+		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		User user;
+		Login login;
+		boolean exito = true;
 
+		user = new User();
+		user.setName("admin");
+		user.setPwd("admin");
+		login = new Login();
+		login.setArgs0(user);
+		// preparar 2 usuarios
+		Username username = new Username();
+		username.setUsername("gxjusuario1");
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+
+		AddUser addUser = new AddUser();
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
+		
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		Book book = new Book();
+		book.setAuthor("Guido Van Roussum");
+		book.setCalification(10);
+		book.setTitle("Python");
+		AddReading addReading = new AddReading();
+		addReading.setArgs0(book);
+		AddReadingResponse addReadingResponse = stub.addReading(addReading);
+		
+		if (addReadingResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo test: anadir un libro sin logearse");
+		}
+		
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		book = new Book();
+		book.setAuthor("Guido Van Roussum");
+		book.setCalification(9);
+		book.setTitle("Python");
+		addReading = new AddReading();
+		addReading.setArgs0(book);
+		addReadingResponse = stub.addReading(addReading);
+		
+		GetMyReadings getMyReadings = new GetMyReadings();
+		GetMyReadingsResponse getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+		
+		if (getMyReadingsResponse.get_return().getTitles()[0].equals(book.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: anadir un libro");
+		}
+		
+		book = new Book();
+		book.setAuthor("Guido Van Roussum");
+		book.setCalification(10);
+		book.setTitle("Python");
+		addReading = new AddReading();
+		addReading.setArgs0(book);
+		addReadingResponse = stub.addReading(addReading);
+		
+		getMyReadings = new GetMyReadings();
+		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+		
+		if (getMyReadingsResponse.get_return().getTitles()[0].equals(book.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: modificar un libro");
+		}
+
+		if (exito) {
+			System.out.println("Exito en las pruebas de AddReading");
+		} else {
+			System.out.println("Fallo en las pruebas de AddReading");
+		}
 	}
 
 	private static void getReadingList() throws RemoteException { // 11
+		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		User user;
+		Login login;
+		boolean exito = true;
 
+		user = new User();
+		user.setName("admin");
+		user.setPwd("admin");
+		login = new Login();
+		login.setArgs0(user);
+		// preparar 2 usuarios
+		Username username = new Username();
+		username.setUsername("gxjusuario1");
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+
+		AddUser addUser = new AddUser();
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
+		
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		GetMyReadings getMyReadings = new GetMyReadings();
+		GetMyReadingsResponse getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+		
+		if (getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: obtener lecturas sin logearse");
+		}
+		
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		Book book1 = new Book();
+		book1.setAuthor("Guido Van Roussum");
+		book1.setCalification(10);
+		book1.setTitle("Python");
+		AddReading addReading = new AddReading();
+		addReading.setArgs0(book1);
+		stub.addReading(addReading);
+		
+		Book book2 = new Book();
+		book2.setAuthor("Netscape");
+		book2.setCalification(10);
+		book2.setTitle("JavaScript");
+		addReading = new AddReading();
+		addReading.setArgs0(book2);
+		stub.addReading(addReading);
+		
+		Book book3 = new Book();
+		book3.setAuthor("Oracle");
+		book3.setCalification(10);
+		book3.setTitle("Java");
+		addReading = new AddReading();
+		addReading.setArgs0(book3);
+		stub.addReading(addReading);
+	
+		getMyReadings = new GetMyReadings();
+		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+		
+		if (!getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: obtener lecturas");
+		}
+		
+		String[] readings = getMyReadingsResponse.get_return().getTitles();
+		
+		if (readings[0].equals(book3.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el primer libro");
+		} 
+		
+		if (readings[1].equals(book2.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el tercer libro");
+		} 
+		
+		if (readings[2].equals(book1.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el primer libro");
+		} 
+
+		if (exito) {
+			System.out.println("Exito en las pruebas de GetMyReadings");
+		} else {
+			System.out.println("Fallo en las pruebas de GetMyReadings");
+		}
 	}
 
 	private static void getFriendReadings() throws RemoteException { // 12
+		UPMSocialReadingStub stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		User user;
+		Login login;
+		boolean exito = true;
 
+		user = new User();
+		user.setName("admin");
+		user.setPwd("admin");
+		login = new Login();
+		login.setArgs0(user);
+		
+		// preparar 2 usuarios
+		Username username = new Username();
+		username.setUsername("gxjusuario1");
+		RemoveUser removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+
+		AddUser addUser = new AddUser();
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
+		
+		username = new Username();
+		username.setUsername("gxjusuario2");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+
+		addUser = new AddUser();
+		addUser.setArgs0(username);
+		addUserResponse = stub.addUser(addUser);
+		String password2 = addUserResponse.get_return().getPwd();
+		
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		username = new Username();
+		username.setUsername("gxjusuario1");
+		GetMyFriendReadings getMyFriendReadings = new GetMyFriendReadings();
+		getMyFriendReadings.setArgs0(username);
+		GetMyFriendReadingsResponse getMyFriendReadingsResponse = stub.getMyFriendReadings(getMyFriendReadings);
+		
+		if (getMyFriendReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: obtener lecturas del amigo sin logearse");
+		}
+		
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		
+		username = new Username();
+		username.setUsername("gxjusuario2");
+		AddFriend addFriend = new AddFriend();
+		addFriend.setArgs0(username);
+		stub.addFriend(addFriend);
+		
+		Book book1 = new Book();
+		book1.setAuthor("Guido Van Roussum");
+		book1.setCalification(10);
+		book1.setTitle("Python");
+		AddReading addReading = new AddReading();
+		addReading.setArgs0(book1);
+		stub.addReading(addReading);
+		
+		Book book2 = new Book();
+		book2.setAuthor("Netscape");
+		book2.setCalification(10);
+		book2.setTitle("JavaScript");
+		addReading = new AddReading();
+		addReading.setArgs0(book2);
+		stub.addReading(addReading);
+		
+		Book book3 = new Book();
+		book3.setAuthor("Oracle");
+		book3.setCalification(10);
+		book3.setTitle("Java");
+		addReading = new AddReading();
+		addReading.setArgs0(book3);
+		stub.addReading(addReading);
+		
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+		
+		user = new User();
+		user.setName("gxjusuario2");
+		user.setPwd(password2);
+		login = new Login();
+		login.setArgs0(user);
+	
+		username = new Username();
+		username.setUsername("gxjusuario1");
+		getMyFriendReadings = new GetMyFriendReadings();
+		getMyFriendReadings.setArgs0(username);
+		getMyFriendReadingsResponse = stub.getMyFriendReadings(getMyFriendReadings);
+		
+		if (getMyFriendReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out.println("Fallo test: obtener lecturas del amigo");
+		}
+		
+		String[] readings = getMyFriendReadingsResponse.get_return().getTitles();
+		
+		if (readings[0].equals(book3.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el primer libro");
+		} 
+		
+		if (readings[1].equals(book2.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el tercer libro");
+		} 
+		
+		if (readings[2].equals(book1.getTitle())) {
+			exito = false;
+			System.out.println("Fallo test: comparar el primer libro");
+		} 
+
+		if (exito) {
+			System.out.println("Exito en las pruebas de GetMyFriendReadings");
+		} else {
+			System.out.println("Fallo en las pruebas de GetMyFriendReadings");
+		}
 	}
 
 }
