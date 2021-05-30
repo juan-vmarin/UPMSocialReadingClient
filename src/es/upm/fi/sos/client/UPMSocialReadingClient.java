@@ -220,9 +220,10 @@ public class UPMSocialReadingClient {
 
 		logout = new Logout();
 		stub.logout(logout);
-		
+
 		GetMyReadings getMyReadings = new GetMyReadings();
-		GetMyReadingsResponse getMyReadingsResponse = stub.getMyReadings(getMyReadings);
+		GetMyReadingsResponse getMyReadingsResponse = stub
+				.getMyReadings(getMyReadings);
 
 		if (getMyReadingsResponse.get_return().getResult()) {
 			exito = false;
@@ -244,7 +245,7 @@ public class UPMSocialReadingClient {
 			exito = false;
 			System.out.println("Fallo login");
 		}
-		
+
 		getMyReadings = new GetMyReadings();
 		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
 
@@ -323,61 +324,54 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
 
-		if (!loginResponse.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en login admin, addUser");
-		}
-
-		// Preparar 2 usuarios
 		Username username = new Username();
-		username.setUsername("gxjusuario11");
+		username.setUsername("gxjusuario1");
 		RemoveUser removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
 		stub.removeUser(removeUser);
 
-		username = new Username();
-		username.setUsername("gxjusuario12");
-		removeUser = new RemoveUser();
-		removeUser.setArgs0(username);
-		stub.removeUser(removeUser);
-
-		// Aniadir usuario
+		// anadir usuario inexistente
 		AddUser addUser = new AddUser();
 		addUser.setArgs0(username);
 		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
 
-		// Fallo en contrasenia
-		if (addUserResponse.get_return().getPwd() == null) {
-			exito = false;
-			System.out.println("Fallo en contrasenia, addUser");
-		}
-
-		// Fallo en aniadir usuario
 		if (!addUserResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo en aniadir usuario, addUser");
+			System.out.println("Fallo test: anadir usuario");
 		}
 
-		// Fallo en aniadir usuario ya existente
+		// anadir usuario existente
+		addUser = new AddUser();
+		addUser.setArgs0(username);
 		addUserResponse = stub.addUser(addUser);
+		String password2 = addUserResponse.get_return().getPwd();
+
 		if (addUserResponse.get_return().getResponse()) {
 			exito = false;
-			System.out
-					.println("Fallo en aniadir usuario ya existente, addUser");
+			System.out.println("Fallo test: anadir usuario existente");
 		}
 
-		// Logout admin
-		Logout logout = new Logout();
-		stub.logout(logout);
+		// login con un usuario creado
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
 
-		// Login user2
-		User user2 = new User();
-		user2.setName("gxjusuario12");
-		Login login2 = new Login();
-		login2.setArgs0(user2);
-		loginResponse = stub.login(login2);
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
 
-		// Aniadir usuario no siendo admin
+		if (!loginResponse.get_return().getResponse()) {
+			exito = false;
+			System.out.println("Fallo test: login con un usuario creado");
+		}
+
+		// crear un usuario con cuenta de un usuario normal
+		username = new Username();
+		username.setUsername("gxjusuario2");
 		addUser = new AddUser();
 		addUser.setArgs0(username);
 		addUserResponse = stub.addUser(addUser);
@@ -385,12 +379,8 @@ public class UPMSocialReadingClient {
 		if (addUserResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo en aniadir usuario no siendo admin, addUser");
+					.println("Fallo test: crear un usuario con cuenta de un usuario normal");
 		}
-
-		// Logout user1
-		logout = new Logout();
-		stub.logout(logout);
 
 		if (exito) {
 			System.out.println("Exito en las pruebas de addUser");
@@ -418,161 +408,139 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
 
-		if (!loginResponse.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en login admin, removeUser");
-		}
-
 		// Preparar 2 usuarios
 		Username username = new Username();
-		username.setUsername("gxjusuario11");
+		username.setUsername("gxjusuario1");
 		RemoveUser removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
 		stub.removeUser(removeUser);
 
+		AddUser addUser = new AddUser();
+		addUser.setArgs0(username);
+		AddUserResponseE addUserResponse = stub.addUser(addUser);
+		String password1 = addUserResponse.get_return().getPwd();
+
 		username = new Username();
-		username.setUsername("gxjusuario12");
+		username.setUsername("gxjusuario2");
 		removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
 		stub.removeUser(removeUser);
 
-		// Aniadir usuario
-		AddUser addUser = new AddUser();
+		addUser = new AddUser();
 		addUser.setArgs0(username);
-		stub.addUser(addUser);
+		addUserResponse = stub.addUser(addUser);
+		String password2 = addUserResponse.get_return().getPwd();
 
-		// Eliminar usuario
+		username = new Username();
+		username.setUsername("gxjusuario3");
+		removeUser = new RemoveUser();
+		removeUser.setArgs0(username);
+		stub.removeUser(removeUser);
+
+		addUser = new AddUser();
+		addUser.setArgs0(username);
+		addUserResponse = stub.addUser(addUser);
+		String password3 = addUserResponse.get_return().getPwd();
+
+		// eliminar usuario inextistente
+		username = new Username();
+		username.setUsername("usurio inexistente");
 		removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
 		RemoveUserResponse removeUserResponse = stub.removeUser(removeUser);
 
-		if (!removeUserResponse.get_return().getResponse()) {
+		if (removeUserResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo en eliminar usuario, removeUser");
+			System.out.println("Fallo test: eliminar un usuario inexistente");
 		}
 
-		// Eliminar admin
-		Username usernameAdmin = new Username();
-		usernameAdmin.setUsername(user.getName());
+		// eliminar admin
+		username = new Username();
+		username.setUsername("admin");
 		removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
 		removeUserResponse = stub.removeUser(removeUser);
 
 		if (removeUserResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo en eliminar admin, removeUser");
+			System.out.println("Fallo test: eliminar admin");
 		}
 
-		// Eliminar usuario con sesion activa
-		User user3 = new User();
-		user3.setName("gxjusuario13");
-		user3.setPwd("pwd");
 		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
-		Username username3 = new Username();
-		username3.setUsername(user3.getName());
+		stub2._getServiceClient().engageModule("addressing");
+		stub2._getServiceClient().getOptions().setManageSession(true);
+
+		// eliminar usuario existente siendo admin
+		username = new Username();
+		username.setUsername("gxjusuario3");
 		removeUser = new RemoveUser();
-		removeUser.setArgs0(username3);
-		stub2.removeUser(removeUser);
-		addUser = new AddUser();
-		addUser.setArgs0(username3);
-		stub2.addUser(addUser);
+		removeUser.setArgs0(username);
+		removeUserResponse = stub.removeUser(removeUser);
+
+		if (!removeUserResponse.get_return().getResponse()) {
+			exito = false;
+			System.out
+					.println("Fallo test: eliminar usuario existente siendo admin");
+		}
+
+		stub = new UPMSocialReadingStub();
+		stub._getServiceClient().engageModule("addressing");
+		stub._getServiceClient().getOptions().setManageSession(true);
+
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
 		login = new Login();
-		login.setArgs0(user3);
+		login.setArgs0(user);
+		loginResponse = stub.login(login);
+
+		user = new User();
+		user.setName("gxjusuario1");
+		user.setPwd(password1);
+		login = new Login();
+		login.setArgs0(user);
 		loginResponse = stub2.login(login);
 
-		if (!loginResponse.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en login otro usuario, removeUser");
-		}
-
-		// Eliminar usuario
-		removeUser = new RemoveUser();
-		removeUser.setArgs0(username3);
-		removeUserResponse = stub.removeUser(removeUser);
-
-		if (!removeUserResponse.get_return().getResponse()) {
-			exito = false;
-			System.out.println("Fallo en eliminar otro usuario, removeUser");
-		} else {
-			AddFriend addFriend = new AddFriend();
-
-			Username username4 = new Username();
-			username4.setUsername("gxjusuario14");
-			removeUser = new RemoveUser();
-			addUser = new AddUser();
-			addUser.setArgs0(username4);
-			stub.addUser(addUser);
-			addFriend.setArgs0(username4);
-			AddFriendResponse addFriendResponse = stub2.addFriend(addFriend);
-
-			if (addFriendResponse.get_return().getResponse()) {
-				exito = false;
-				System.out
-						.println("Fallo en accion usuario eliminado, removeUser");
-			}
-		}
-
-		// Logout admin
-		Logout logout = new Logout();
-		stub.logout(logout);
-
-		// Aniadir usuario
-		addUser = new AddUser();
-		addUser.setArgs0(username);
-		stub.addUser(addUser);
-
-		// Eliminar usuario sin login
+		// eliminar a otro usuario siendo usuario normal
+		username = new Username();
+		username.setUsername("gxjusuario2");
 		removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
-		removeUserResponse = stub.removeUser(removeUser);
+		removeUserResponse = stub2.removeUser(removeUser);
 
 		if (removeUserResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo en eliminar usuarios sin login, removeUser");
+					.println("Fallo test: eliminar a otro usuario siendo usuario normal");
 		}
 
-		// Login user1
-		User user1 = new User();
-		user1.setName("gxjusuario11");
-		Login login1 = new Login();
-		login1.setArgs0(user1);
-		loginResponse = stub.login(login1);
-
-		// Eliminar diferente usuario
+		// eliminarse a si mismo
 		username = new Username();
-		username.setUsername("gxjusuario12");
-		addUser = new AddUser();
-		addUser.setArgs0(username);
-		stub.addUser(addUser);
-
+		username.setUsername("gxjusuario1");
 		removeUser = new RemoveUser();
 		removeUser.setArgs0(username);
-		removeUserResponse = stub.removeUser(removeUser);
-
-		if (removeUserResponse.get_return().getResponse()) {
-			exito = false;
-			System.out
-					.println("Fallo en eliminar diferente usuario, removeUser");
-		}
-
-		// Eliminarse a si mismo
-		username = new Username();
-		username.setUsername(user1.getName()); // gxjusuario11
-
-		removeUser = new RemoveUser();
-		removeUser.setArgs0(username);
-		removeUserResponse = stub.removeUser(removeUser);
+		removeUserResponse = stub2.removeUser(removeUser);
 
 		if (!removeUserResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo en eliminarse a si mismo, removeUser");
+			System.out.println("Fallo test: eliminarse a si mismo");
+		}
+
+		// usuario logeado anteriormente pero borrado intenta realizar accion
+		GetMyReadings getMyReadings = new GetMyReadings();
+		GetMyReadingsResponse getMyReadingsResponse = stub
+				.getMyReadings(getMyReadings);
+
+		if (getMyReadingsResponse.get_return().getResult()) {
+			exito = false;
+			System.out
+					.println("Fallo test: usuario logeado anteriormente pero borrado intenta realizar accion");
 		}
 
 		if (exito) {
-			System.out.println("Exito en las pruebas de removeUser");
+			System.out.println("Exito en las pruebas de RemoveUser");
 		} else {
-			System.out.println("Fallo en las pruebas de removeUser");
+			System.out.println("Fallo en las pruebas de RemoveUser");
 		}
 
 	}
@@ -598,7 +566,7 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
 
-		// preparar 2 usuarios
+		// preparar 1 usuarios
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
 		RemoveUser removeUser = new RemoveUser();
@@ -610,6 +578,7 @@ public class UPMSocialReadingClient {
 		AddUserResponseE addUserResponse = stub.addUser(addUser);
 		String password1 = addUserResponse.get_return().getPwd();
 
+		// cambiar contrasena del admin
 		passwordPair = new PasswordPair();
 		passwordPair.setOldpwd("admin");
 		passwordPair.setNewpwd("newadmin");
@@ -636,7 +605,7 @@ public class UPMSocialReadingClient {
 			exito = false;
 			System.out.println("Fallo test: cambiar contrasena del admin");
 		}
-		
+
 		// restaurar la contrasena del admin
 		passwordPair = new PasswordPair();
 		passwordPair.setOldpwd("newadmin");
@@ -645,10 +614,11 @@ public class UPMSocialReadingClient {
 		changePassword.setArgs0(passwordPair);
 		changePasswordResponse = stub.changePassword(changePassword);
 
+		// cambiar contrasena entre varias sesiones
 		stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
-		
+
 		UPMSocialReadingStub stub2 = new UPMSocialReadingStub();
 		stub2._getServiceClient().engageModule("addressing");
 		stub2._getServiceClient().getOptions().setManageSession(true);
@@ -659,12 +629,6 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 		loginResponse = stub.login(login);
-		
-		if (!loginResponse.get_return().getResponse()) {
-			exito = false;
-			System.out
-					.println("Fallo login 1");
-		}
 
 		user = new User();
 		user.setName("gxjusuario1");
@@ -672,12 +636,6 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 		loginResponse = stub2.login(login);
-		
-		if (!loginResponse.get_return().getResponse()) {
-			exito = false;
-			System.out
-					.println("Fallo login 2");
-		}
 
 		passwordPair = new PasswordPair();
 		passwordPair.setOldpwd(password1);
@@ -689,7 +647,7 @@ public class UPMSocialReadingClient {
 		if (!changePasswordResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: cambiar contrasena entre varias sesiones 1");
+					.println("Fallo test: cambiar contrasena entre varias sesiones (paso 1)");
 		}
 
 		passwordPair = new PasswordPair();
@@ -702,7 +660,7 @@ public class UPMSocialReadingClient {
 		if (!changePasswordResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: cambiar contrasena entre varias sesiones 2");
+					.println("Fallo test: cambiar contrasena entre varias sesiones (paso 2)");
 		}
 
 		stub = new UPMSocialReadingStub();
@@ -719,7 +677,7 @@ public class UPMSocialReadingClient {
 		if (!loginResponse.get_return().getResponse()) {
 			exito = false;
 			System.out
-					.println("Fallo test: cambiar contrasena entre varias sesiones 3");
+					.println("Fallo test: cambiar contrasena entre varias sesiones (paso 3)");
 		}
 
 		if (exito) {
@@ -1111,7 +1069,8 @@ public class UPMSocialReadingClient {
 		if (friends == null) {
 			exito = false;
 			System.out.println("Fallo en friends null, friendList");
-		} else if ((friends[0] != usname2.getUsername()) || (friends[1] != usname3.getUsername())) {
+		} else if ((friends[0] != usname2.getUsername())
+				|| (friends[1] != usname3.getUsername())) {
 			exito = false;
 			System.out.println("Fallo en friends, friendList"); // borrar una
 																// vez funcione
@@ -1136,7 +1095,7 @@ public class UPMSocialReadingClient {
 			exito = false;
 			System.out.println("Fallo en eliminar amigo1, friendList");
 		}
-		
+
 		// Logout user1
 		logout = new Logout();
 		stub.logout(logout);
@@ -1163,7 +1122,7 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 		stub.login(login);
-		
+
 		// preparar 2 usuarios
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
@@ -1180,6 +1139,7 @@ public class UPMSocialReadingClient {
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
 
+		// anadir un libro sin logearse
 		Book book = new Book();
 		book.setAuthor("Guido Van Roussum");
 		book.setCalification(10);
@@ -1193,13 +1153,14 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo test: anadir un libro sin logearse");
 		}
 
+		// anadir un libro
 		user = new User();
 		user.setName("gxjusuario1");
 		user.setPwd(password1);
 		login = new Login();
 		login.setArgs0(user);
 		stub.login(login);
-		
+
 		book = new Book();
 		book.setAuthor("Guido Van Roussum");
 		book.setCalification(9);
@@ -1207,26 +1168,29 @@ public class UPMSocialReadingClient {
 		addReading = new AddReading();
 		addReading.setArgs0(book);
 		addReadingResponse = stub.addReading(addReading);
-		
+
 		if (!addReadingResponse.get_return().getResponse()) {
 			exito = false;
-			System.out.println("Fallo test: anadir un libro 1");
+			System.out.println("Fallo test: anadir un libro (paso 1)");
 		}
-		
+
 		GetMyReadings getMyReadings = new GetMyReadings();
-		GetMyReadingsResponse getMyReadingsResponse = stub.getMyReadings(getMyReadings);
-		
+		GetMyReadingsResponse getMyReadingsResponse = stub
+				.getMyReadings(getMyReadings);
+
 		if (!getMyReadingsResponse.get_return().getResult()) {
 			exito = false;
-			System.out.println("Fallo test: anadir un libro 2");
+			System.out.println("Fallo test: anadir un libro (paso 2)");
 		}
-		
-		if (!getMyReadingsResponse.get_return().getTitles()[0].equals(book.getTitle())) {
+
+		if (!getMyReadingsResponse.get_return().getTitles()[0].equals(book
+				.getTitle())) {
 
 			exito = false;
-			System.out.println("Fallo test: anadir un libro 3");
+			System.out.println("Fallo test: anadir un libro (paso 3)");
 		}
 
+		// modificar un libro
 		book = new Book();
 		book.setAuthor("Guido Van Roussum");
 		book.setCalification(10);
@@ -1237,8 +1201,9 @@ public class UPMSocialReadingClient {
 
 		getMyReadings = new GetMyReadings();
 		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
-		
-		if (!getMyReadingsResponse.get_return().getTitles()[0].equals(book.getTitle())) {
+
+		if (!getMyReadingsResponse.get_return().getTitles()[0].equals(book
+				.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: modificar un libro");
 		}
@@ -1264,8 +1229,8 @@ public class UPMSocialReadingClient {
 		login = new Login();
 		login.setArgs0(user);
 		stub.login(login);
-		
-		// preparar 2 usuarios
+
+		// preparar 1 usuario
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
 		RemoveUser removeUser = new RemoveUser();
@@ -1281,6 +1246,7 @@ public class UPMSocialReadingClient {
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
 
+		// obtener lecturas sin logearse
 		GetMyReadings getMyReadings = new GetMyReadings();
 		GetMyReadingsResponse getMyReadingsResponse = stub
 				.getMyReadings(getMyReadings);
@@ -1290,13 +1256,14 @@ public class UPMSocialReadingClient {
 			System.out.println("Fallo test: obtener lecturas sin logearse");
 		}
 
+		// obtener lecturas
 		user = new User();
 		user.setName("gxjusuario1");
 		user.setPwd(password1);
 		login = new Login();
 		login.setArgs0(user);
 		stub.login(login);
-		
+
 		Book book1 = new Book();
 		book1.setAuthor("Guido Van Roussum");
 		book1.setCalification(10);
@@ -1321,18 +1288,16 @@ public class UPMSocialReadingClient {
 		addReading.setArgs0(book3);
 		stub.addReading(addReading);
 
-		
 		stub = new UPMSocialReadingStub();
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
-		
+
 		user = new User();
 		user.setName("gxjusuario1");
 		user.setPwd(password1);
 		login = new Login();
 		login.setArgs0(user);
 		stub.login(login);
-	
 
 		getMyReadings = new GetMyReadings();
 		getMyReadingsResponse = stub.getMyReadings(getMyReadings);
@@ -1343,27 +1308,26 @@ public class UPMSocialReadingClient {
 		}
 
 		String[] readings = getMyReadingsResponse.get_return().getTitles();
-		
+
 		if (!(readings.length >= 3)) {
 			exito = false;
 			System.out.println("Fallo test: longitud de la lista");
-		} 
-		
+		}
+
 		if (!readings[0].equals(book3.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el primer libro");
-		} 
-		
+		}
+
 		if (!readings[1].equals(book2.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el segundo libro");
-		} 
-		
+		}
+
 		if (!readings[2].equals(book1.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el tercer libro");
-		} 
-
+		}
 
 		if (exito) {
 			System.out.println("Exito en las pruebas de GetMyReadings");
@@ -1387,7 +1351,7 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 
 		stub.login(login);
-		
+
 		// preparar 2 usuarios
 		Username username = new Username();
 		username.setUsername("gxjusuario1");
@@ -1415,6 +1379,7 @@ public class UPMSocialReadingClient {
 		stub._getServiceClient().engageModule("addressing");
 		stub._getServiceClient().getOptions().setManageSession(true);
 
+		// obtener lecturas del amigo sin logearse
 		username = new Username();
 		username.setUsername("gxjusuario1");
 		GetMyFriendReadings getMyFriendReadings = new GetMyFriendReadings();
@@ -1428,6 +1393,8 @@ public class UPMSocialReadingClient {
 					.println("Fallo test: obtener lecturas del amigo sin logearse");
 		}
 
+		// obtener lecturas del amigo
+
 		user = new User();
 		user.setName("gxjusuario1");
 		user.setPwd(password1);
@@ -1435,7 +1402,7 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 
 		stub.login(login);
-		
+
 		username = new Username();
 		username.setUsername("gxjusuario2");
 		AddFriend addFriend = new AddFriend();
@@ -1477,36 +1444,38 @@ public class UPMSocialReadingClient {
 		login.setArgs0(user);
 
 		stub.login(login);
-	
+
 		username = new Username();
 		username.setUsername("gxjusuario1");
 		getMyFriendReadings = new GetMyFriendReadings();
 		getMyFriendReadings.setArgs0(username);
 
-		getMyFriendReadingsResponse = stub.getMyFriendReadings(getMyFriendReadings);
-		
+		getMyFriendReadingsResponse = stub
+				.getMyFriendReadings(getMyFriendReadings);
+
 		if (!getMyFriendReadingsResponse.get_return().getResult()) {
 			exito = false;
 			System.out.println("Fallo test: obtener lecturas del amigo");
 		}
-		
-		String[] readings = getMyFriendReadingsResponse.get_return().getTitles();
-		
+
+		String[] readings = getMyFriendReadingsResponse.get_return()
+				.getTitles();
+
 		if (!(readings.length >= 3)) {
 			exito = false;
 			System.out.println("Fallo test: longitud de la lista");
-		} 
-		
+		}
+
 		if (!readings[0].equals(book3.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el primer libro");
-		} 
-		
+		}
+
 		if (!readings[1].equals(book2.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el tercer libro");
-		} 
-		
+		}
+
 		if (!readings[2].equals(book1.getTitle())) {
 			exito = false;
 			System.out.println("Fallo test: comparar el primer libro");
